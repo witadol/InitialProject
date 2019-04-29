@@ -12,18 +12,15 @@ object initial {
     println(result)
   }
 
+  @tailrec
   def retry[A](block: () => A, acceptResult: A => Boolean, retries: List[FiniteDuration]): A = {
-    @tailrec
-    def retryT(block: () => A, acceptResult: A => Boolean, retries: List[FiniteDuration]): A = {
+
       val blockerResult = block()
       if (retries.isEmpty || acceptResult(blockerResult)) {
         blockerResult
       } else {
         Thread.sleep(retries.head.toMillis)
-        retryT(block, acceptResult, retries.tail)
+        retry(block, acceptResult, retries.tail)
       }
-    }
-    retryT(block=block, acceptResult=acceptResult, retries=retries)
   }
 }
-
